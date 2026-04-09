@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node // creating user defined data - type
+{
+    int data;
+    struct node *link;
+};
+
+struct node *create_node(int data_value) // To create a node
+{
+    struct node *ptr;
+    ptr = (struct node *)malloc(sizeof(struct node));
+    ptr->data = data_value;
+    ptr->link = NULL;
+    return ptr;
+}
+
+void traverse(struct node *start) // To traverse the linked list and print the data of each node
+{
+    struct node *ptr;
+    ptr = start;
+    while (ptr != NULL)
+    {
+        printf("%d ", ptr->data);
+        ptr = ptr->link;
+    }
+}
+
+// To insert a new node at begining of the linked list
+
+void insert_begin(struct node **start, int data_value)
+{
+    struct node *new = create_node(data_value);
+    new->link = *start;
+    *start = new;
+}
+// To insert a new node at end of the linked list
+void insert_end(struct node **start, int data_value)
+{
+    struct node *ptr, *new;
+    new = create_node(data_value);
+    if (*start == NULL)
+    {
+        *start = new;
+        return;
+    }
+    ptr = *start;
+    while (ptr->link != NULL)
+    {
+        ptr = ptr->link;
+    }
+    ptr->link = new;
+}
+
+// To insert a new node at a specific position in the linked list
+void insert_pos(struct node **start, int data_value, int pos)
+{
+    struct node *ptr, *new;
+    int i;
+
+    new = create_node(data_value);
+
+    // Insert at beginning
+    if (pos == 1)
+    {
+        new->link = *start;
+        *start = new;
+        return;
+    }
+
+    ptr = *start;
+
+    // Traverse to (pos - 1)
+    for (i = 1; i < pos - 1 && ptr != NULL; i++)
+    {
+        ptr = ptr->link;
+    }
+
+    // If position is invalid
+    if (ptr == NULL)
+    {
+        printf("Invalid position\n");
+        return;
+    }
+
+    // Insert node
+    new->link = ptr->link;
+    ptr->link = new;
+}
+
+// To delete a node at begining of the linked list
+
+void delete_begin(struct node **start)
+{
+    *start = (*start)->link;
+}
+
+void delete_end(struct node **start)
+{
+    struct node *ptr, *prev;
+    if (*start == NULL)
+    {
+        printf("List is empty\n");
+        return;
+    }
+
+    ptr = *start;
+    while (ptr->link != NULL)
+    {
+        prev = ptr;
+        ptr = ptr->link;
+    }
+    prev->link = NULL;
+    free(ptr);
+}
+
+// To delete a node at a specific position in the linked list
+
+void delete_pos(struct node **start, int pos)
+{
+    struct node *ptr, *del;
+    int i;
+    ptr = *start;
+    for (i = 1; i < pos - 1 && ptr->link != NULL; i++)
+    {
+        ptr = ptr->link;
+    }
+    if (ptr->link == NULL)
+    {
+        printf("Invalid position\n");
+        return;
+    }
+    del = ptr->link;
+    ptr->link = del->link;
+    free(del);
+}
+
+int main()
+{
+    struct node *start;
+    start = create_node(70);
+    insert_begin(&start, 30);  
+    insert_end(&start, 80);
+    insert_end(&start, 90);
+    insert_pos(&start, 50, 2);
+    // delete_begin(&start);
+    // delete_end(&start);
+    delete_pos(&start, 2);
+    traverse(start);
+    return 0;
+}
