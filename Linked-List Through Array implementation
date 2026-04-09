@@ -1,0 +1,225 @@
+#include <stdio.h>
+
+#define MAX 20
+
+int Data[MAX], Link[MAX];
+int Start = -1; 
+int Avail = 0; 
+
+
+// Initialize free list
+void initialize()
+{
+    for (int i = 0; i < MAX - 1; i++)
+        Link[i] = i + 1;
+
+    Link[MAX - 1] = -1;
+}
+
+// To Create a node
+int create_node(int value)
+{
+    if (Avail == -1)
+    {
+        printf("Overflow\n");
+        return -1;
+    }
+
+    int new = Avail;
+    Avail = Link[Avail];
+
+    Data[new] = value;
+    Link[new] = -1;
+
+    return new;
+}
+
+// Traverse
+void traverse()
+{
+    int ptr = Start;
+
+    while (ptr != -1)
+    {
+        printf("%d -> ", Data[ptr]);
+        ptr = Link[ptr];
+    }
+}
+
+// Length
+int length()
+{
+    int ptr = Start, count = 0;
+
+    while (ptr != -1)
+    {
+        count++;
+        ptr = Link[ptr];
+    }
+
+    return count;
+}
+
+// Insert at beginning
+void insert_start(int value)
+{
+    int new = create_node(value);
+    if (new == -1)
+        return;
+
+    Link[new] = Start;
+    Start = new;
+}
+
+// Insert at end
+void insert_end(int value)
+{
+    int new = create_node(value);
+    if (new == -1)
+        return;
+
+    if (Start == -1)
+    {
+        Start = new;
+        return;
+    }
+
+    int ptr = Start;
+    while (Link[ptr] != -1)
+        ptr = Link[ptr];
+
+    Link[ptr] = new;
+}
+
+// Insert at position
+void insert_pos(int value, int pos)
+{
+    int new = create_node(value);
+    if (new == -1)
+        return;
+
+    if (pos == 1)
+    {
+        Link[new] = Start;
+        Start = new;
+        return;
+    }
+
+    int ptr = Start;
+    for (int i = 1; i < pos - 1 && ptr != -1; i++)
+        ptr = Link[ptr];
+
+    if (ptr == -1)
+    {
+        printf("Invalid position\n");
+        return;
+    }
+
+    Link[new] = Link[ptr];
+    Link[ptr] = new;
+}
+
+// Delete from beginning
+void delete_start()
+{
+    if (Start == -1)
+    {
+        printf("Underflow\n");
+        return;
+    }
+
+    int del = Start;
+    Start = Link[Start];
+
+    Link[del] = Avail;
+    Avail = del;
+}
+
+// Delete from end
+void delete_end()
+{
+    if (Start == -1)
+    {
+        printf("Underflow\n");
+        return;
+    }
+
+    int ptr = Start, prev;
+
+    if (Link[Start] == -1)
+    {
+        Link[Start] = Avail;
+        Avail = Start;
+        Start = -1;
+        return;
+    }
+
+    while (Link[ptr] != -1)
+    {
+        prev = ptr;
+        ptr = Link[ptr];
+    }
+
+    Link[prev] = -1;
+
+    Link[ptr] = Avail;
+    Avail = ptr;
+}
+
+// Delete at position
+void delete_pos(int pos)
+{
+    if (Start == -1)
+    {
+        printf("Underflow\n");
+        return;
+    }
+
+    if (pos == 1)
+    {
+        delete_start();
+        return;
+    }
+
+    int ptr = Start;
+
+    for (int i = 1; i < pos - 1 && ptr != -1; i++)
+        ptr = Link[ptr];
+
+    if (ptr == -1 || Link[ptr] == -1)
+    {
+        printf("Invalid position\n");
+        return;
+    }
+
+    int del = Link[ptr];
+    Link[ptr] = Link[del];
+
+    Link[del] = Avail;
+    Avail = del;
+}
+
+int main()
+{
+    initialize();
+
+    insert_end(10);
+    insert_end(20);
+    insert_end(30);
+    insert_start(5);
+    insert_pos(15, 3);
+
+    printf("List: ");
+    traverse();
+
+    printf("\nLength = %d\n", length());
+
+    delete_start();
+    delete_end();
+    delete_pos(2);
+
+    printf("After Deletions: ");
+    traverse();
+
+    return 0;
+}
