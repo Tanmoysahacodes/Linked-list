@@ -104,12 +104,18 @@ void delete_end(struct node **start)
         printf("List is empty\n");
         return;
     }
-
-    ptr = *start;
-    while (ptr->link != NULL)
+    if((*start)->link==NULL)
     {
-        prev = ptr;
-        ptr = ptr->link;
+        *start=NULL;
+    }
+    else
+    {
+        ptr = *start;
+        while (ptr->link != NULL)
+        {
+            prev = ptr;
+            ptr = ptr->link;
+        }
     }
     prev->link = NULL;
     free(ptr);
@@ -136,17 +142,68 @@ void delete_pos(struct node **start, int pos)
     free(del);
 }
 
-int main()
-{
-    struct node *start;
-    start = create_node(70);
-    insert_begin(&start, 30);  
-    insert_end(&start, 80);
-    insert_end(&start, 90);
-    insert_pos(&start, 50, 2);
-    // delete_begin(&start);
-    // delete_end(&start);
-    delete_pos(&start, 2);
-    traverse(start);
+int main() {
+    struct node *start = NULL;
+    int choice, value, pos;
+
+    while (1) {
+        printf("\n--- MENU ---\n");
+        printf("1. Insert at Beginning\n");
+        printf("2. Insert at End\n");
+        printf("3. Insert at Position\n");
+        printf("4. Delete from Beginning\n");
+        printf("5. Delete from End\n");
+        printf("6. Delete from Position\n");
+        printf("7. Traverse\n");
+        printf("8. Exit\n");
+
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter value: ");
+                scanf("%d", &value);
+                insert_begin(&start, value);
+                break;
+
+            case 2:
+                printf("Enter value: ");
+                scanf("%d", &value);
+                insert_end(&start, value);
+                break;
+
+            case 3:
+                printf("Enter value and position: ");
+                scanf("%d %d", &value, &pos);
+                insert_pos(&start, value, pos);
+                break;
+
+            case 4:
+                delete_begin(&start);
+                break;
+
+            case 5:
+                delete_end(&start);
+                break;
+
+            case 6:
+                printf("Enter position: ");
+                scanf("%d", &pos);
+                delete_pos(&start, pos);
+                break;
+
+            case 7:
+                traverse(start);
+                break;
+
+            case 8:
+                exit(0);
+
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
     return 0;
 }
