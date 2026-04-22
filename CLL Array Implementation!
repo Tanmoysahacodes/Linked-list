@@ -1,0 +1,254 @@
+#include <stdio.h>
+#define MAX 100
+
+int avail;
+
+void create(int link[], int prev[], int *start)
+{
+    for (int i = 0; i < MAX - 1; i++)
+    {
+        link[i] = i + 1;
+        prev[i] = -1;
+    }
+    link[MAX - 1] = -1;
+    prev[MAX - 1] = -1;
+
+    avail = 0;
+    *start = -1;
+}
+
+// INSERT BEGIN
+void insertBegin(int data[], int link[], int prev[], int *start, int val)
+{
+    if (avail == -1)
+    {
+        printf("Overflow\n");
+        return;
+    }
+
+    int p = avail;
+    avail = link[p];
+
+    data[p] = val;
+
+    if (*start == -1)
+    {
+        link[p] = p;
+        prev[p] = p;
+        *start = p;
+        return;
+    }
+
+    int last = prev[*start];
+
+    link[p] = *start;
+    prev[p] = last;
+
+    prev[*start] = p;
+    link[last] = p;
+
+    *start = p;
+}
+
+// INSERT END
+void insertEnd(int data[], int link[], int prev[], int *start, int val)
+{
+    if (avail == -1)
+    {
+        printf("Overflow\n");
+        return;
+    }
+
+    int p = avail;
+    avail = link[p];
+
+    data[p] = val;
+
+    if (*start == -1)
+    {
+        link[p] = p;
+        prev[p] = p;
+        *start = p;
+        return;
+    }
+
+    int last = prev[*start];
+
+    link[p] = *start;
+    prev[p] = last;
+
+    link[last] = p;
+    prev[*start] = p;
+}
+
+// INSERT POSITION
+void insertPos(int data[], int link[], int prev[], int *start, int pos, int val)
+{
+    if (avail == -1)
+    {
+        printf("Overflow\n");
+        return;
+    }
+
+    if (pos == 1)
+    {
+        insertBegin(data, link, prev, start, val);
+        return;
+    }
+
+    int temp = *start;
+    for (int i = 1; i < pos - 1; i++)
+    {
+        temp = link[temp];
+        if (temp == *start)
+        {
+            printf("Out of range\n");
+            return;
+        }
+    }
+
+    int p = avail;
+    avail = link[p];
+
+    data[p] = val;
+
+    int next = link[temp];
+
+    link[p] = next;
+    prev[p] = temp;
+
+    prev[next] = p;
+    link[temp] = p;
+}
+
+// DELETE BEGIN
+void deleteBegin(int link[], int prev[], int *start)
+{
+    if (*start == -1)
+    {
+        printf("Underflow\n");
+        return;
+    }
+
+    int temp = *start;
+
+    if (link[temp] == temp)
+    {
+        *start = -1;
+    }
+    else
+    {
+        int last = prev[temp];
+
+        *start = link[temp];
+
+        prev[*start] = last;
+        link[last] = *start;
+    }
+
+    link[temp] = avail;
+    avail = temp;
+}
+
+// DELETE END
+void deleteEnd(int link[], int prev[], int *start)
+{
+    if (*start == -1)
+    {
+        printf("Underflow\n");
+        return;
+    }
+
+    int last = prev[*start];
+
+    if (last == *start)
+    {
+        *start = -1;
+    }
+    else
+    {
+        int new_last = prev[last];
+
+        link[new_last] = *start;
+        prev[*start] = new_last;
+    }
+
+    link[last] = avail;
+    avail = last;
+}
+
+// DELETE POSITION
+void deletePos(int link[], int prev[], int *start, int pos)
+{
+    if (*start == -1)
+    {
+        printf("Underflow\n");
+        return;
+    }
+
+    if (pos == 1)
+    {
+        deleteBegin(link, prev, start);
+        return;
+    }
+
+    int temp = *start;
+    for (int i = 1; i < pos; i++)
+    {
+        temp = link[temp];
+        if (temp == *start)
+        {
+            printf("Out of range\n");
+            return;
+        }
+    }
+
+    int p = prev[temp];
+    int n = link[temp];
+
+    link[p] = n;
+    prev[n] = p;
+
+    link[temp] = avail;
+    avail = temp;
+}
+
+// DISPLAY
+void display(int data[], int link[], int start)
+{
+    if (start == -1)
+    {
+        printf("Empty\n");
+        return;
+    }
+
+    int temp = start;
+    do
+    {
+        printf("%d <-> ", data[temp]);
+        temp = link[temp];
+    } while (temp != start);
+
+    printf("(back to start)\n");
+}
+
+// MAIN
+int main()
+{
+    int d[MAX], l[MAX], p[MAX];
+    int st;
+
+    create(l, p, &st);
+
+    insertBegin(d, l, p, &st, 10);
+    insertEnd(d, l, p, &st, 20);
+    insertEnd(d, l, p, &st, 30);
+    insertPos(d, l, p, &st, 2, 15);
+
+    display(d, l, st);
+
+    deletePos(l, p, &st, 2);
+    display(d, l, st);
+
+    return 0;
+}
